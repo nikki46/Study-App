@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Lofi Study</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="dot"></span>
+        <h1>lofi study</h1>
+      </div>
+      <div class="clock-wrap">
+        <div class="clock" id="clock">--:--</div>
+        <button class="clock-toggle" id="clockToggle" title="Toggle 12 / 24 hour">24h</button>
+      </div>
+      <div class="theme-controls">
+        <button class="icon-btn" id="themeToggle" title="Customize colors">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a10 10 0 0 0 0 20 10 10 0 0 0 0-20z"></path><circle cx="7.5" cy="10.5" r="1.5" fill="currentColor"></circle><circle cx="12" cy="7.5" r="1.5" fill="currentColor"></circle><circle cx="16.5" cy="10.5" r="1.5" fill="currentColor"></circle></svg>
+          <span>Theme</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="grid">
+      <!-- TIMER -->
+      <section class="card timer-card">
+        <div class="card-header">
+          <h2>Focus Timer</h2>
+          <div class="mode-tabs" id="modeTabs">
+            <button class="tab active" data-mode="focus" data-mins="25">Focus</button>
+            <button class="tab" data-mode="short" data-mins="5">Short</button>
+            <button class="tab" data-mode="long" data-mins="15">Long</button>
+          </div>
+        </div>
+        <div class="timer-display">
+          <svg class="ring" viewBox="0 0 200 200">
+            <circle class="ring-bg" cx="100" cy="100" r="90"/>
+            <circle class="ring-fg" id="ringFg" cx="100" cy="100" r="90"
+              stroke-dasharray="565.48" stroke-dashoffset="0"/>
+          </svg>
+          <div class="time" id="timeText">25:00</div>
+        </div>
+        <div class="timer-controls">
+          <button class="btn ghost" id="resetBtn">Reset</button>
+          <button class="btn primary" id="startBtn">Start</button>
+          <button class="btn ghost" id="skipBtn">Skip</button>
+        </div>
+        <div class="cycle-info">
+          <span>Completed: <strong id="cyclesDone">0</strong></span>
+          <label class="custom-mins">
+            Custom (min):
+            <input type="number" id="customMins" min="1" max="180" value="25" />
+            <button class="btn small" id="setCustom">Set</button>
+          </label>
+        </div>
+      </section>
+
+      <!-- TASKS -->
+      <section class="card tasks-card">
+        <div class="card-header">
+          <h2>Tasks</h2>
+          <div class="task-stats">
+            <span id="taskCount">0 / 0</span>
+          </div>
+        </div>
+        <form class="task-form" id="taskForm">
+          <input type="text" id="taskInput" placeholder="What do you want to focus on?" maxlength="120" />
+          <button type="submit" class="btn primary">Add</button>
+        </form>
+        <ul class="task-list" id="taskList"></ul>
+        <div class="task-footer">
+          <button class="btn ghost small" id="clearDone">Clear completed</button>
+        </div>
+      </section>
+
+      <!-- MUSIC -->
+      <section class="card music-card">
+        <div class="card-header">
+          <h2>Radio</h2>
+          <div class="now-playing" id="nowPlaying">— select a track —</div>
+        </div>
+        <audio id="audio" preload="none" crossorigin="anonymous"></audio>
+        <div class="player-controls">
+          <button class="icon-btn round" id="prevBtn" title="Previous">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+          </button>
+          <button class="icon-btn round large" id="playBtn" title="Play / Pause">
+            <svg id="playIcon" width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          </button>
+          <button class="icon-btn round" id="nextBtn" title="Next">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M16 6h2v12h-2zM6 18l8.5-6L6 6z"/></svg>
+          </button>
+          <div class="volume">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4z"/></svg>
+            <input type="range" id="volume" min="0" max="100" value="60" />
+          </div>
+        </div>
+        <div class="track-list" id="trackList"></div>
+      </section>
+    </main>
+  </div>
+
+  <!-- THEME PANEL -->
+  <div class="theme-panel" id="themePanel" hidden>
+    <div class="theme-panel-inner">
+      <div class="theme-header">
+        <h3>Customize colors</h3>
+        <button class="icon-btn" id="closeTheme">✕</button>
+      </div>
+      <div class="presets">
+        <button class="preset" data-preset="midnight">Midnight</button>
+        <button class="preset" data-preset="sakura">Sakura</button>
+        <button class="preset" data-preset="forest">Forest</button>
+        <button class="preset" data-preset="sunset">Sunset</button>
+        <button class="preset" data-preset="paper">Paper</button>
+        <button class="preset" data-preset="mocha">Mocha</button>
+      </div>
+      <div class="color-rows">
+        <label><span>Background</span><input type="color" data-var="--bg" /></label>
+        <label><span>Surface</span><input type="color" data-var="--surface" /></label>
+        <label><span>Surface 2</span><input type="color" data-var="--surface-2" /></label>
+        <label><span>Text</span><input type="color" data-var="--text" /></label>
+        <label><span>Muted</span><input type="color" data-var="--muted" /></label>
+        <label><span>Accent</span><input type="color" data-var="--accent" /></label>
+        <label><span>Accent 2</span><input type="color" data-var="--accent-2" /></label>
+        <label><span>Border</span><input type="color" data-var="--border" /></label>
+      </div>
+      <div class="theme-actions">
+        <button class="btn ghost" id="resetTheme">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
