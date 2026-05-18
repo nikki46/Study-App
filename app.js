@@ -298,12 +298,7 @@ function saveTrackList() {
 
 const trackListEl = document.getElementById('trackList');
 const nowPlaying = document.getElementById('nowPlaying');
-const playBtn = document.getElementById('playBtn');
-const playIcon = document.getElementById('playIcon');
-const prevBtn = document.getElementById('prevBtn');
-const nextBtn = document.getElementById('nextBtn');
 const ytFrame = document.getElementById('ytFrame');
-const ytPlaceholder = document.getElementById('ytPlaceholder');
 const addTrackForm = document.getElementById('addTrackForm');
 const ytUrlInput = document.getElementById('ytUrlInput');
 
@@ -358,22 +353,6 @@ function loadTrack(i) {
   renderTracks();
 }
 
-playBtn.addEventListener('click', () => {
-  if (currentIdx === -1) loadTrack(0);
-  else loadTrack(currentIdx);
-});
-
-prevBtn.addEventListener('click', () => {
-  if (TRACKS.length === 0) return;
-  if (currentIdx === -1) return loadTrack(TRACKS.length - 1);
-  loadTrack((currentIdx - 1 + TRACKS.length) % TRACKS.length);
-});
-
-nextBtn.addEventListener('click', () => {
-  if (TRACKS.length === 0) return;
-  if (currentIdx === -1) return loadTrack(0);
-  loadTrack((currentIdx + 1) % TRACKS.length);
-});
 
 /* ----- Add custom YouTube track ----- */
 function extractYouTubeId(input) {
