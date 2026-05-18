@@ -473,6 +473,27 @@ body {
   margin-bottom: 14px;
 }
 
+.add-track-form {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.add-track-form input {
+  flex: 1;
+  padding: 9px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.add-track-form input:focus { border-color: var(--accent); }
+
 .track-list {
   flex: 1;
   overflow-y: auto;
@@ -507,6 +528,19 @@ body {
   width: 20px;
 }
 .track.active .track-num { color: var(--accent); }
+.track-del-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 2px 6px;
+  opacity: 0;
+  transition: opacity 0.2s, color 0.2s;
+  border-radius: 4px;
+}
+.track:hover .track-del-btn { opacity: 1; }
+.track-del-btn:hover { color: var(--accent); }
 .track-info { flex: 1; overflow: hidden; }
 .track-title {
   font-size: 13px;

@@ -280,16 +280,21 @@ taskList.addEventListener('drop', (e) => {
 renderTasks();
 
 /* ============ MUSIC PLAYER (YouTube iframe embed) ============ */
-const TRACKS = [
+const DEFAULT_TRACKS = [
   { title: 'lofi hip hop radio – beats to relax/study to', artist: 'Lofi Girl', id: 'jfKfPfyJRdk' },
-  { title: 'lofi hip hop radio – beats to sleep/chill to', artist: 'Lofi Girl', id: 'rUxyKA_-grg' },
-  { title: 'synthwave radio – beats to chill/game to', artist: 'Lofi Girl', id: '4xDzrJKXOOY' },
-  { title: 'Chillhop Radio – jazzy & lofi hip hop', artist: 'Chillhop Music', id: '5yx6BWlEVcY' },
-  { title: 'Coffee Shop Radio – lofi & jazzy hip-hop', artist: 'STEEZYASFUCK', id: '-5KAN9_CzSA' },
-  { title: 'Peaceful Piano – study music', artist: 'Lofi Girl', id: 'TtkFsfOP9QI' },
-  { title: 'Asian Lofi Hip Hop Radio', artist: 'Dreamy', id: 'Na0w3Mz46GA' },
-  { title: 'Tokyo Night Drive – Japanese City Pop', artist: 'Tokyo Lost Tracks', id: 'lcF4nGsfJ7E' },
+  { title: '1 A.M Study Session – lofi hip hop/chill beats', artist: 'Lofi Girl', id: 'lTRiuFIWV54' },
+  { title: '2 A.M Study Session – lofi hip hop/chill beats', artist: 'Lofi Girl', id: 'zhJirel6t-E' },
+  { title: 'Chillhop Essentials – Fall 2021', artist: 'Chillhop Music', id: 'GfKs2tQLMEY' },
+  { title: 'Coffee Shop Ambience – lofi jazz', artist: 'Calmed by Nature', id: 'h2zkV-l_TbY' },
+  { title: 'Rainy Day Coffee Shop – 3hr lofi mix', artist: 'the bootleg boy', id: '2gliGzb2_1I' },
 ];
+
+// Load custom tracks from localStorage or use defaults
+let TRACKS = JSON.parse(localStorage.getItem('lofi-tracks') || 'null') || [...DEFAULT_TRACKS];
+
+function saveTrackList() {
+  localStorage.setItem('lofi-tracks', JSON.stringify(TRACKS));
+}
 
 const trackListEl = document.getElementById('trackList');
 const nowPlaying = document.getElementById('nowPlaying');
@@ -299,6 +304,8 @@ const prevBtn = document.getElementById('prevBtn');
 const nextBtn = document.getElementById('nextBtn');
 const ytFrame = document.getElementById('ytFrame');
 const ytPlaceholder = document.getElementById('ytPlaceholder');
+const addTrackForm = document.getElementById('addTrackForm');
+const ytUrlInput = document.getElementById('ytUrlInput');
 
 let currentIdx = -1;
 
@@ -313,20 +320,35 @@ function renderTracks() {
         <div class="track-title"></div>
         <div class="track-artist"></div>
       </div>
+      <button class="track-del-btn" data-track-del="${i}" title="Remove track">×</button>
     `;
     div.querySelector('.track-title').textContent = t.title;
     div.querySelector('.track-artist').textContent = t.artist;
-    div.addEventListener('click', () => loadTrack(i));
+    div.addEventListener('click', (e) => {
+      if (e.target.closest('[data-track-del]')) return;
+      loadTrack(i);
+    });
     trackListEl.appendChild(div);
   });
 }
 renderTracks();
 
+trackListEl.addEventListener('click', (e) => {
+  const del = e.target.closest('[data-track-del]');
+  if (!del) return;
+  const idx = parseInt(del.dataset.trackDel, 10);
+  TRACKS.splice(idx, 1);
+  if (currentIdx === idx) currentIdx = -1;
+  else if (currentIdx > idx) currentIdx--;
+  saveTrackList();
+  renderTracks();
+});
+
 function loadTrack(i) {
+  if (i < 0 || i >= TRACKS.length) return;
   currentIdx = i;
   const t = TRACKS[i];
   nowPlaying.textContent = `${t.title} — ${t.artist}`;
-  // Replace iframe with fresh one to avoid stale state
   const iframe = document.createElement('iframe');
   iframe.src = `https://www.youtube.com/embed/${t.id}?autoplay=1&rel=0&modestbranding=1`;
   iframe.allow = 'autoplay; encrypted-media';
@@ -338,17 +360,51 @@ function loadTrack(i) {
 
 playBtn.addEventListener('click', () => {
   if (currentIdx === -1) loadTrack(0);
-  else loadTrack(currentIdx); // reload current track
+  else loadTrack(currentIdx);
 });
 
 prevBtn.addEventListener('click', () => {
+  if (TRACKS.length === 0) return;
   if (currentIdx === -1) return loadTrack(TRACKS.length - 1);
   loadTrack((currentIdx - 1 + TRACKS.length) % TRACKS.length);
 });
 
 nextBtn.addEventListener('click', () => {
+  if (TRACKS.length === 0) return;
   if (currentIdx === -1) return loadTrack(0);
   loadTrack((currentIdx + 1) % TRACKS.length);
+});
+
+/* ----- Add custom YouTube track ----- */
+function extractYouTubeId(input) {
+  // Handle various YouTube URL formats and plain IDs
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/live\/)([a-zA-Z0-9_-]{11})/,
+    /^([a-zA-Z0-9_-]{11})$/
+  ];
+  for (const p of patterns) {
+    const m = input.trim().match(p);
+    if (m) return m[1];
+  }
+  return null;
+}
+
+addTrackForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const val = ytUrlInput.value.trim();
+  if (!val) return;
+  const id = extractYouTubeId(val);
+  if (!id) {
+    ytUrlInput.value = '';
+    ytUrlInput.placeholder = 'Invalid URL — try again';
+    setTimeout(() => { ytUrlInput.placeholder = 'Paste YouTube URL to add a track'; }, 2000);
+    return;
+  }
+  TRACKS.push({ title: `Custom track`, artist: 'YouTube', id });
+  ytUrlInput.value = '';
+  saveTrackList();
+  renderTracks();
+  loadTrack(TRACKS.length - 1);
 });
 
 /* ============ THEME ============ */
