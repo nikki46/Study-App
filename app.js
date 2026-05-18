@@ -279,20 +279,16 @@ taskList.addEventListener('drop', (e) => {
 
 renderTasks();
 
-/* ============ MUSIC PLAYER (HTML5 audio) ============ */
-// SomaFM streams — free, listener-supported, CORS-friendly internet radio.
-// Genres curated for studying / chill focus.
+/* ============ MUSIC PLAYER (YouTube iframe embed) ============ */
 const TRACKS = [
-  { title: 'Groove Salad', artist: 'SomaFM · downtempo & chill', url: 'https://ice1.somafm.com/groovesalad-128-mp3' },
-  { title: 'Drone Zone', artist: 'SomaFM · ambient / space music', url: 'https://ice1.somafm.com/dronezone-128-mp3' },
-  { title: 'Deep Space One', artist: 'SomaFM · deep ambient electronic', url: 'https://ice1.somafm.com/deepspaceone-128-mp3' },
-  { title: 'Lush', artist: 'SomaFM · sensuous vocals & chill', url: 'https://ice1.somafm.com/lush-128-mp3' },
-  { title: 'Space Station Soma', artist: 'SomaFM · ambient / space-out', url: 'https://ice1.somafm.com/spacestation-128-mp3' },
-  { title: 'Secret Agent', artist: 'SomaFM · spy-jazz & lounge', url: 'https://ice1.somafm.com/secretagent-128-mp3' },
-  { title: 'Sonic Universe', artist: 'SomaFM · adventurous jazz', url: 'https://ice1.somafm.com/sonicuniverse-128-mp3' },
-  { title: 'DEF CON Radio', artist: 'SomaFM · electronic for hackers', url: 'https://ice1.somafm.com/defcon-128-mp3' },
-  { title: 'Fluid', artist: 'SomaFM · drown in liquid trip-hop', url: 'https://ice1.somafm.com/fluid-128-mp3' },
-  { title: 'Beat Blender', artist: 'SomaFM · deep house & breakbeats', url: 'https://ice1.somafm.com/beatblender-128-mp3' },
+  { title: 'lofi hip hop radio – beats to relax/study to', artist: 'Lofi Girl', id: 'jfKfPfyJRdk' },
+  { title: 'lofi hip hop radio – beats to sleep/chill to', artist: 'Lofi Girl', id: 'rUxyKA_-grg' },
+  { title: 'synthwave radio – beats to chill/game to', artist: 'Lofi Girl', id: '4xDzrJKXOOY' },
+  { title: 'Chillhop Radio – jazzy & lofi hip hop', artist: 'Chillhop Music', id: '5yx6BWlEVcY' },
+  { title: 'Coffee Shop Radio – lofi & jazzy hip-hop', artist: 'STEEZYASFUCK', id: '-5KAN9_CzSA' },
+  { title: 'Peaceful Piano – study music', artist: 'Lofi Girl', id: 'TtkFsfOP9QI' },
+  { title: 'Asian Lofi Hip Hop Radio', artist: 'Dreamy', id: 'Na0w3Mz46GA' },
+  { title: 'Tokyo Night Drive – Japanese City Pop', artist: 'Tokyo Lost Tracks', id: 'lcF4nGsfJ7E' },
 ];
 
 const trackListEl = document.getElementById('trackList');
@@ -301,11 +297,10 @@ const playBtn = document.getElementById('playBtn');
 const playIcon = document.getElementById('playIcon');
 const prevBtn = document.getElementById('prevBtn');
 const nextBtn = document.getElementById('nextBtn');
-const volume = document.getElementById('volume');
-const audio = document.getElementById('audio');
+const ytFrame = document.getElementById('ytFrame');
+const ytPlaceholder = document.getElementById('ytPlaceholder');
 
 let currentIdx = -1;
-let isPlaying = false;
 
 function renderTracks() {
   trackListEl.innerHTML = '';
@@ -321,48 +316,29 @@ function renderTracks() {
     `;
     div.querySelector('.track-title').textContent = t.title;
     div.querySelector('.track-artist').textContent = t.artist;
-    div.addEventListener('click', () => loadTrack(i, true));
+    div.addEventListener('click', () => loadTrack(i));
     trackListEl.appendChild(div);
   });
 }
 renderTracks();
 
-const PLAY_SVG = '<path d="M8 5v14l11-7z"/>';
-const PAUSE_SVG = '<path d="M6 5h4v14H6zm8 0h4v14h-4z"/>';
-
-function setPlayIcon(playing) {
-  playIcon.innerHTML = playing ? PAUSE_SVG : PLAY_SVG;
-  isPlaying = playing;
-}
-
-function loadTrack(i, autoplay = true) {
+function loadTrack(i) {
   currentIdx = i;
   const t = TRACKS[i];
   nowPlaying.textContent = `${t.title} — ${t.artist}`;
-  audio.src = t.url;
-  audio.volume = parseInt(volume.value, 10) / 100;
+  // Replace iframe with fresh one to avoid stale state
+  const iframe = document.createElement('iframe');
+  iframe.src = `https://www.youtube.com/embed/${t.id}?autoplay=1&rel=0&modestbranding=1`;
+  iframe.allow = 'autoplay; encrypted-media';
+  iframe.allowFullscreen = true;
+  ytFrame.innerHTML = '';
+  ytFrame.appendChild(iframe);
   renderTracks();
-  if (autoplay) {
-    audio.play().catch(err => {
-      console.warn('Playback failed:', err);
-      nowPlaying.textContent = `${t.title} — click play to start`;
-    });
-  }
 }
 
-audio.addEventListener('playing', () => setPlayIcon(true));
-audio.addEventListener('pause', () => setPlayIcon(false));
-audio.addEventListener('ended', () => loadTrack((currentIdx + 1) % TRACKS.length));
-audio.addEventListener('error', () => {
-  if (currentIdx === -1) return;
-  nowPlaying.textContent = 'Stream unreachable, trying next…';
-  setTimeout(() => loadTrack((currentIdx + 1) % TRACKS.length), 800);
-});
-
 playBtn.addEventListener('click', () => {
-  if (currentIdx === -1) { loadTrack(0); return; }
-  if (isPlaying) audio.pause();
-  else audio.play().catch(() => {});
+  if (currentIdx === -1) loadTrack(0);
+  else loadTrack(currentIdx); // reload current track
 });
 
 prevBtn.addEventListener('click', () => {
@@ -373,10 +349,6 @@ prevBtn.addEventListener('click', () => {
 nextBtn.addEventListener('click', () => {
   if (currentIdx === -1) return loadTrack(0);
   loadTrack((currentIdx + 1) % TRACKS.length);
-});
-
-volume.addEventListener('input', () => {
-  audio.volume = parseInt(volume.value, 10) / 100;
 });
 
 /* ============ THEME ============ */
