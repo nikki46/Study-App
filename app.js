@@ -288,6 +288,7 @@ const DEFAULT_TRACKS = [
   { title: 'Coffee Shop Ambience – lofi jazz', artist: 'Calmed by Nature', id: 'h2zkV-l_TbY' },
   { title: 'Rainy Day Coffee Shop – 3hr lofi mix', artist: 'the bootleg boy', id: '2gliGzb2_1I' },
   { title: 'Coffee Shop Radio – lofi & jazzy hip-hop', artist: 'STEEZYASFUCK', id: '-5KAN9_CzSA' },
+  { title: 'Chillhop Radio – jazzy & lofi hip hop', artist: 'Chillhop Music', id: '5yx6BWlEVcY' },
 ];
 
 // Load custom tracks from localStorage or use defaults
